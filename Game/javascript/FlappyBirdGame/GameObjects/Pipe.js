@@ -48,7 +48,7 @@ class Pipe extends GameObject {
         let bottomPipeY = this.gapCenter + this.spacing / 2;
 
 
-        if (this.topImage == null || this.bottomImage == null) {
+        if (this.topImage === null || this.bottomImage === null) {
             context.fillStyle = "red";
             context.fillRect(this.x, topPipeY, this.width + 3, this.height + 3);
             context.fillRect(this.x, bottomPipeY, this.width + 3, this.height + 3);

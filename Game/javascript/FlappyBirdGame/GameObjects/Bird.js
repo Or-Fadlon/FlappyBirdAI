@@ -28,7 +28,7 @@ class Bird extends GameObject {
     }
 
     Render(context) {
-        if (this.image == null) {
+        if (this.image === null) {
             context.fillStyle = "red";
             context.fillRect(this.x, this.y, this.width + 3, this.height + 3);
             context.fillStyle = "white";
