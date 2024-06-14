@@ -10,8 +10,7 @@ const audioPlayer = new AudioPlayer();
 const BackgroundMusicVolume = 0.2;
 
 const keysDown = {};
-const spaceKey = 32;
-
+const spaceKeyCode = 32;
 
 // Game State Values
 let context;
@@ -120,10 +119,10 @@ function GameLoop(timeStamp) {
 }
 
 function HandlePlayerMovement() {
-    if (keysDown[spaceKey]) {
+    if (keysDown[spaceKeyCode]) {
         player.Flap();
         audioPlayer.Play("flap");
-        keysDown[spaceKey] = false;
+        keysDown[spaceKeyCode] = false;
     }
 }
 
