@@ -7,6 +7,7 @@ import { AudioPlayer } from "./AudioPlayer.js";
 
 // Const
 const audioPlayer = new AudioPlayer();
+audioPlayer.MuteToggle(); // Mute the audio by default.
 const BackgroundMusicVolume = 0.2;
 
 const keysDown = {};
@@ -64,15 +65,6 @@ function AddKeyboardListeners() {
         },
         false
     );
-    // window.addEventListener(
-    //     "keydown",
-    //     function (e) {
-    //         // space and arrow keys
-    //         if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
-    //             e.preventDefault();
-    //         }
-    //     },
-    //     false);
 }
 
 function Start(canvas) {
@@ -215,12 +207,8 @@ function Render(timeStamp) {
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     background.Render(context);
-
-    pipesList.forEach((pipe) => {
-        pipe.Render(context);
-    });
-
+    pipesList.forEach((pipe) => { pipe.Render(context); });
+    player.Render(context);
     hud.Render(context, score, 1, timeStamp);
     ground.Render(context);
-    player.Render(context);
 }
