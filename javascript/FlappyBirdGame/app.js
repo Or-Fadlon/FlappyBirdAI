@@ -102,11 +102,33 @@ function Stop() {
     Restart();
 }
 
+function NotifyAI() {
+    let nearestPipe;
+    for (let i = 0; i < pipesList.length; i++) {
+        if (!pipesList[i].scored) {
+            nearestPipe = pipesList[i];
+            break;
+        }
+    }
+    if (!nearestPipe) return;
+    let topPipeY = nearestPipe.gapCenter - nearestPipe.spacing / 2;
+    let bottomPipeY = nearestPipe.gapCenter + nearestPipe.spacing / 2;
+
+    window.DataForAI = {
+        velocityY: player.velocityY,
+        distanceFromPipeX: nearestPipe.x - (player.x + player.width),
+        distanceFromTopPipeY: topPipeY - player.y,
+        distanceFromBottomPipeY: bottomPipeY - (player.y + player.height),
+        distanceFromGroundY: ground.y - (player.y + player.height)
+    };
+}
+
 function GameLoop(timeStamp) {
     if (life !== 0) {
         Step();
         Collision();
         Render(timeStamp);
+        NotifyAI(); // TODO: remove after implementing image processing
         AnimationRequestID = window.requestAnimationFrame(GameLoop);
     } else {
         let message = "default!";

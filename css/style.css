@@ -23,3 +23,19 @@ canvas {
     max-height: 100%;
     aspect-ratio: 1000 / 1320;
 }
+
+left {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-right: 20px;
+}
+
+right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-left: 20px;
+}
