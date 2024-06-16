@@ -47,6 +47,77 @@ class NeuralNetwork {
         console.log(network);
     }
 
+
+    // calculate the positions of all nodes in the neural network
+    CalculateNodePositions(startX, startY, width, height) {
+        let nodePositions = {};
+        for (let i = 0; i < this.layers.length; i++) {
+            let nodesInLayer = this.layers[i].nodes; // get all nodes in the layer
+            let x = startX + ((i + 1.0) * width) / (this.layers.length + 1.0); // calculate x position
+            for (let j = 0; j < nodesInLayer.length; j++) {
+                let y = startY + ((j + 1.0) * height) / (nodesInLayer.length + 1.0); // calculate y position
+                let nodeName = `L${i}-N${j}`;
+                nodePositions[nodeName] = [x, y]; // store position using node number as index
+            }
+        }
+        return nodePositions;
+    }
+
+    // Draw connections between nodes, adjusting opacity for disabled connections
+    DrawConnections(context, nodePositions) {
+        this.connections.forEach((connection, connectionNum) => {
+    
+            for (let inNodeNum = 0; inNodeNum < connection.inputSize; inNodeNum++) {
+                let intNodeName = `L${connectionNum}-N${inNodeNum}`;
+                for (let outNodeNum = 0; outNodeNum < connection.outputSize; outNodeNum++) {
+                    let outNodeName = `L${connectionNum + 1}-N${outNodeNum}`;
+                    let weight = connection.GetWeight(inNodeNum, outNodeNum);
+                    let fromPos = nodePositions[intNodeName];
+                    let toPos = nodePositions[outNodeName];
+                    // Determine the base color based on the weight of the connection
+                    let color = weight > 0 ? [255, 0, 0] : [0, 0, 255]; // Red for positive, blue for negative
+                    context.strokeStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}`;
+                    // Set the stroke weight based on the absolute value of the weight
+                    context.lineWidth = Math.abs(weight) * 2;
+                    
+                    // Draw the line representing the connection
+                    context.beginPath();
+                    context.moveTo(fromPos[0], fromPos[1]);
+                    context.lineTo(toPos[0], toPos[1]);
+                    context.stroke();
+
+                }
+            }
+        });
+    }
+
+    // draw nodes at their calculated positions
+    DrawNodes(context, nodePositions) {
+        Object.values(nodePositions).forEach((pos, index) => {
+            // draw nodes
+            context.strokeStyle = 'black';
+            context.lineWidth = 1;
+            context.fillStyle = 'white';
+            context.beginPath();
+            context.arc(pos[0], pos[1], 20, 0, 2 * Math.PI);
+            context.fill();
+            context.stroke();
+
+            // draw text in nodes
+            context.fillStyle = 'black';
+            context.font = 'bold 20px sans-serif';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(index, pos[0], pos[1]);
+        });
+    }
+
+    Render(context, startX, startY, width, height) {
+        let nodePositions = this.CalculateNodePositions(startX, startY, width, height); // calculate and store positions of all nodes
+        this.DrawConnections(context, nodePositions); // draw all connections between nodes
+        this.DrawNodes(context, nodePositions); // draw nodes on top of connections
+    }
+
     Calculate(inputArray) {
         if (inputArray.length !== this.layers[0].GetNumberOfNodes())
             throw new Error("Invalid input size");
