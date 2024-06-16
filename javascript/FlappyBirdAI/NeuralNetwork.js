@@ -22,6 +22,8 @@ class NeuralNetwork {
             let connection = new NetworkConnection(this.layers[i].GetNumberOfNodes(), this.layers[i + 1].GetNumberOfNodes());
             this.connections.push(connection);
         }
+
+        this.visualizationOpacity = 1;
     }
 
     Visualize() {
@@ -66,7 +68,6 @@ class NeuralNetwork {
     // Draw connections between nodes, adjusting opacity for disabled connections
     DrawConnections(context, nodePositions) {
         this.connections.forEach((connection, connectionNum) => {
-    
             for (let inNodeNum = 0; inNodeNum < connection.inputSize; inNodeNum++) {
                 let intNodeName = `L${connectionNum}-N${inNodeNum}`;
                 for (let outNodeNum = 0; outNodeNum < connection.outputSize; outNodeNum++) {
@@ -76,16 +77,14 @@ class NeuralNetwork {
                     let toPos = nodePositions[outNodeName];
                     // Determine the base color based on the weight of the connection
                     let color = weight > 0 ? [255, 0, 0] : [0, 0, 255]; // Red for positive, blue for negative
-                    context.strokeStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}`;
+                    context.strokeStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${this.visualizationOpacity})`;
                     // Set the stroke weight based on the absolute value of the weight
-                    context.lineWidth = Math.abs(weight) * 2;
-                    
+                    context.lineWidth = Math.abs(weight) * 5;
                     // Draw the line representing the connection
                     context.beginPath();
                     context.moveTo(fromPos[0], fromPos[1]);
                     context.lineTo(toPos[0], toPos[1]);
                     context.stroke();
-
                 }
             }
         });
@@ -95,27 +94,30 @@ class NeuralNetwork {
     DrawNodes(context, nodePositions) {
         Object.values(nodePositions).forEach((pos, index) => {
             // draw nodes
-            context.strokeStyle = 'black';
+            context.strokeStyle = `rgba(0, 0, 0, ${this.visualizationOpacity})`;
             context.lineWidth = 1;
-            context.fillStyle = 'white';
+            context.fillStyle = `rgba(255, 255, 255, ${this.visualizationOpacity})`;
             context.beginPath();
             context.arc(pos[0], pos[1], 20, 0, 2 * Math.PI);
             context.fill();
             context.stroke();
 
             // draw text in nodes
-            context.fillStyle = 'black';
+            context.fillStyle = `rgba(0, 0, 0, ${this.visualizationOpacity})`;
             context.font = 'bold 20px sans-serif';
             context.textAlign = 'center';
             context.textBaseline = 'middle';
             context.fillText(index, pos[0], pos[1]);
+
         });
     }
 
     Render(context, startX, startY, width, height) {
+        context.save();
         let nodePositions = this.CalculateNodePositions(startX, startY, width, height); // calculate and store positions of all nodes
         this.DrawConnections(context, nodePositions); // draw all connections between nodes
         this.DrawNodes(context, nodePositions); // draw nodes on top of connections
+        context.restore();
     }
 
     Calculate(inputArray) {

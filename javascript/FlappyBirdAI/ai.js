@@ -1,6 +1,6 @@
 import { NeuralNetwork } from "./NeuralNetwork.js";
 
-let AIRuntimeRequestID;
+let AIRuntimeRequestID; // request ID for the AI loop
 let flappyNetwork;
 let velocityY;
 let distanceFromPipeX;
@@ -8,7 +8,11 @@ let distanceFromTopPipeY;
 let distanceFromBottomPipeY;
 let distanceFromGroundY;
 
-window.StartAI = function (canvas) { Main(canvas); };
+// Draw the neural network
+let context;
+
+// Expose the AI to the window object
+window.StartAI = function (canvas) { Start(canvas); };
 window.StopAI = function () { Stop(); };
 
 function GetGameStateByCanvasImage() {
@@ -57,10 +61,24 @@ function SimulateKeyEvent(keyCode, eventType) {
 
 function Jump() {
     // jump
-    console.log("JUMP");
     const spaceKeyCode = 32;
     SimulateKeyEvent(spaceKeyCode, "keydown"); // Simulate keydown for Enter key
     // SimulateKeyEvent(spaceKeyCode, "keyup");   // Simulate keyup for Enter key
+}
+
+function jumpRepeatedly() {
+    Jump();
+    // setTimeout(jumpRepeatedly, 1000);
+    AnimationRequestID = window.requestAnimationFrame(jumpRepeatedly)
+}
+
+function Render() {
+    let startX = 0; // starting x-coordinate for the visualization
+    let startY = 0; // starting y-coordinate for the visualization
+    let width = canvas.width; // width of the visualization area
+    let height = canvas.height; // height of the visualization area
+
+    flappyNetwork.Render(context, startX, startY, width, height);
 }
 
 function AILoop() {
@@ -69,13 +87,15 @@ function AILoop() {
     let inputs = [velocityY, distanceFromPipeX, distanceFromTopPipeY, distanceFromBottomPipeY, distanceFromGroundY];
     if (!(velocityY === undefined || distanceFromPipeX === undefined || distanceFromTopPipeY === undefined || distanceFromBottomPipeY === undefined || distanceFromGroundY === undefined)) {
         let output = flappyNetwork.CalculateOutput(inputs);
-        console.log("Output: " + output);
-        let decision =  output[0] > 0.5 ? "jump" : "no jump";
+        // console.log("Output: " + output);
+        let decision = output[0] > 0.5 ? "jump" : "no jump";
+        console.log("Decision: " + decision);
         // apply the output to the game
         if (decision === "jump") {
             Jump();
         }
     }
+    Render();
     // repeat
     AIRuntimeRequestID = window.requestAnimationFrame(AILoop);
 }
@@ -91,23 +111,15 @@ function InitAIAgent() {
     // TODO: add weights import export
 }
 
-function Start() {
+function Start(canvas) {
     console.log("Starting AI...");
     InitAIAgent();
+    context = canvas.getContext("2d");
     // start the game loop
     // start the AI loop
     AIRuntimeRequestID = window.requestAnimationFrame(AILoop);
 }
 
-
-function jumpRepeatedly() {
-    Jump();
-    // setTimeout(jumpRepeatedly, 1000);
-    AnimationRequestID = window.requestAnimationFrame(jumpRepeatedly)
-}
-
-function Main() {
-    console.log("Starting AI...");
-    // jumpRepeatedly();
-    Start();
+function Stop() {
+    window.cancelAnimationFrame(AIRuntimeRequestID);
 }
