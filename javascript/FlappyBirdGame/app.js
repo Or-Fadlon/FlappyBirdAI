@@ -18,7 +18,8 @@ let context;
 let AnimationRequestID;
 let life;
 let score;
-let pipeTimer;
+let gameTime = 0;
+let pipeTimer = 100;
 // Game Objects
 let background;
 let hud;
@@ -36,9 +37,10 @@ window.GameMuteToggle = function () {
 };
 
 function InitGameVariables() {
-    pipeTimer = 100;
     life = 1;
     score = 0;
+    gameTime = 0;
+    pipeTimer = 100;
 }
 
 function InitGameObjects() {
@@ -88,6 +90,7 @@ function Restart() {
 }
 
 function Stop() {
+    window.DieForAI(); // TODO: remove after implementing image processing
     life = 0;
     audioPlayer.Stop();
     window.cancelAnimationFrame(AnimationRequestID);
@@ -95,6 +98,10 @@ function Stop() {
 }
 
 function NotifyAI() {
+    // if (window.DataForAI && gameTime < window.DataForAI.gameTime) {
+    //     window.DieForAI();
+    // }
+
     let nearestPipe;
     for (let i = 0; i < pipesList.length; i++) {
         if (!pipesList[i].scored) {
@@ -111,7 +118,8 @@ function NotifyAI() {
         distanceFromPipeX: nearestPipe.x - (player.x + player.width),
         distanceFromTopPipeY: topPipeY - player.y,
         distanceFromBottomPipeY: bottomPipeY - (player.y + player.height),
-        distanceFromGroundY: ground.y - (player.y + player.height)
+        distanceFromGroundY: ground.y - (player.y + player.height),
+        gameTime: gameTime
     };
 }
 
@@ -184,6 +192,8 @@ function Step() {
         pipe.Step();
     });
     player.Step(1, 0, canvas.height - 130);
+
+    gameTime++;
 }
 
 function Collision() {

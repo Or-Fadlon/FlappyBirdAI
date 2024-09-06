@@ -3,12 +3,14 @@ function Sigmoid(x) {
 }
 
 class NetworkNode {
-    constructor(name) {
+    constructor(name, activationFunction = Sigmoid) {
         this.name = name;       // Name of the node
         this.input = 0;        // Output of the node after activation
         this.bias = 0; // Bias term initialized randomly
-        this.activationFunction = Sigmoid;
+        this.activationFunction = activationFunction;
         this.output = 0;       // Output of the node after activation
+
+        this.bias = Math.random() * 2 - 1;
     }
 
     // Activation function
@@ -21,6 +23,12 @@ class NetworkNode {
             this.input += inputs[i] * weights[i];
         this.output = this.activationFunction(this.input + this.bias);
         return this.output;
+    }
+
+    Clone() {
+        let node = new NetworkNode(this.name, this.activationFunction);
+        node.bias = this.bias;
+        return node;
     }
 }
 

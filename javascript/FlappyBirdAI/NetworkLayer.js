@@ -12,6 +12,20 @@ class NetworkLayer {
     GetNumberOfNodes() {
         return this.nodes.length;
     }
+
+    ZeroBiases() {
+        this.nodes.forEach((node) => {
+            node.bias = 0;
+        });
+    }
+
+    Clone() {
+        let layer = new NetworkLayer(this.GetNumberOfNodes());
+        for (let i = 0; i < this.GetNumberOfNodes(); i++) {
+            layer.nodes[i] = this.nodes[i].Clone();
+        }
+        return layer;
+    }
 }
 
 export { NetworkLayer }

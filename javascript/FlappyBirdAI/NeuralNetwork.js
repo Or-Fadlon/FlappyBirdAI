@@ -26,6 +26,56 @@ class NeuralNetwork {
         this.visualizationOpacity = 1;
     }
 
+    Calculate(inputArray) {
+        if (inputArray.length !== this.layers[0].GetNumberOfNodes())
+            throw new Error("Invalid input size");
+
+        let inputs = [];
+        let nextInputs = [];
+        let weightsArray = [];
+        for (let layerNum = 0; layerNum < this.layers.length; layerNum++) {
+            for (let nodeNum = 0; nodeNum < this.layers[layerNum].GetNumberOfNodes(); nodeNum++) {
+                if (layerNum === 0) {
+                    // Input layer
+                    inputs = [inputArray[nodeNum]];
+                    weightsArray = [1];
+                } else {
+                    // Hidden and output layers
+                    inputs = nextInputs;
+                    nextInputs = [];
+                    weightsArray = [];
+                    // Get weights from previous layer
+                    for (let k = 0; k < this.layers[layerNum - 1].GetNumberOfNodes(); k++) {
+                        let weight = this.connections[layerNum - 1].GetWeight(k, nodeNum); // weight of: node_k => node_j
+                        weightsArray.push(weight);
+                    }
+                }
+                let node = this.layers[layerNum].nodes[nodeNum];
+                let output = node.Calculate(inputs, weightsArray);
+                nextInputs.push(output);
+            }
+        }
+        return nextInputs;
+    }
+
+    CalculateOutput(input) {
+        let output = this.Calculate(input);
+        return output;
+    }
+
+    Clone() {
+        let network = new NeuralNetwork(1, [], 1);
+        network.layers = [];
+        network.connections = [];
+        for (let i = 0; i < this.layers.length; i++) {
+            network.layers.push(this.layers[i].Clone());
+        }
+        for (let i = 0; i < this.connections.length; i++) {
+            network.connections.push(this.connections[i].Clone());
+        }
+        return network;
+    }
+
     Visualize() {
         let network = [];
         for (let i = 0; i < this.layers.length; i++) {
@@ -118,43 +168,6 @@ class NeuralNetwork {
         this.DrawConnections(context, nodePositions); // draw all connections between nodes
         this.DrawNodes(context, nodePositions); // draw nodes on top of connections
         context.restore();
-    }
-
-    Calculate(inputArray) {
-        if (inputArray.length !== this.layers[0].GetNumberOfNodes())
-            throw new Error("Invalid input size");
-
-        let inputs = [];
-        let nextInputs = [];
-        let weightsArray = [];
-        for (let layerNum = 0; layerNum < this.layers.length; layerNum++) {
-            for (let nodeNum = 0; nodeNum < this.layers[layerNum].GetNumberOfNodes(); nodeNum++) {
-                if (layerNum === 0) {
-                    // Input layer
-                    inputs = [inputArray[nodeNum]];
-                    weightsArray = [1];
-                } else {
-                    // Hidden and output layers
-                    inputs = nextInputs;
-                    nextInputs = [];
-                    weightsArray = [];
-                    // Get weights from previous layer
-                    for (let k = 0; k < this.layers[layerNum - 1].GetNumberOfNodes(); k++) {
-                        let weight = this.connections[layerNum - 1].GetWeight(k, nodeNum); // weight of: node_k => node_j
-                        weightsArray.push(weight);
-                    }
-                }
-                let node = this.layers[layerNum].nodes[nodeNum];
-                let output = node.Calculate(inputs, weightsArray);
-                nextInputs.push(output);
-            }
-        }
-        return nextInputs;
-    }
-
-    CalculateOutput(input) {
-        let output = this.Calculate(input);
-        return output;
     }
 }
 
